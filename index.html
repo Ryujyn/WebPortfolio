@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light" data-lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ryujyn · Rhachata Meesilp — Restaurant Tech & Automation</title>
+  <meta name="description" content="Portfolio of Rhachata Meesilp (Ryujyn) — a chef-turned-builder focused on restaurant tech, automation, AI agents, and small B2B SaaS.">
+  <meta name="author" content="Rhachata Meesilp">
+  <meta name="theme-color" content="#0e1c34">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <script src="scripts/theme.js"></script>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav__container">
+      <a href="#hero" class="nav__logo" aria-label="Ryujyn home">
+        <span>RYU</span><strong>JYN</strong>
+      </a>
+
+      <div class="nav__links" role="navigation" aria-label="Primary">
+        <a href="#about" class="nav__link" data-key="nav_about">เรื่องราว</a>
+        <a href="#focus" class="nav__link" data-key="nav_focus">แนวทาง</a>
+        <a href="#projects" class="nav__link" data-key="nav_projects">ผลงาน</a>
+        <a href="#skills" class="nav__link" data-key="nav_skills">ทักษะ</a>
+        <a href="#contact" class="nav__link" data-key="nav_contact">ติดต่อ</a>
+      </div>
+
+      <div class="nav__controls">
+        <button class="btn-icon" id="lang-toggle" type="button" aria-label="Toggle language">
+          <span id="lang-label">EN</span>
+        </button>
+
+        <button class="btn-icon" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          </svg>
+          <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <button class="btn-icon nav__menu-btn" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu" role="navigation" aria-label="Mobile">
+    <a href="#about" class="mobile-menu__link" data-key="nav_about">เรื่องราว</a>
+    <a href="#focus" class="mobile-menu__link" data-key="nav_focus">แนวทาง</a>
+    <a href="#projects" class="mobile-menu__link" data-key="nav_projects">ผลงาน</a>
+    <a href="#skills" class="mobile-menu__link" data-key="nav_skills">ทักษะ</a>
+    <a href="#contact" class="mobile-menu__link" data-key="nav_contact">ติดต่อ</a>
+  </div>
+
+  <main>
+
+    <!-- HERO -->
+    <section id="hero" class="hero">
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <p class="eyebrow" data-reveal data-key="hero_label">Restaurant Tech · Automation · Micro-SaaS</p>
+          <h1 class="hero__title" data-reveal data-delay="1">
+            <span class="hero__title-row" data-key="hero_title_1">สร้างระบบ</span>
+            <span class="hero__title-row hero__title-accent" data-key="hero_title_2">จากปัญหาจริง</span>
+            <span class="hero__title-row" data-key="hero_title_3">ในครัว</span>
+          </h1>
+          <p class="hero__desc" data-reveal data-delay="2" data-key="hero_desc">
+            ผมเริ่มจากครัวร้านอาหาร เห็นปัญหาเรื่องสต็อก การแจ้งเตือน และข้อมูลที่กระจัดกระจาย แล้วค่อยเปลี่ยนสิ่งเหล่านั้นให้กลายเป็นเครื่องมือที่เจ้าของร้านใช้ได้จริง
+          </p>
+          <div class="hero__cta" data-reveal data-delay="3">
+            <a href="#projects" class="btn btn--primary" data-key="hero_cta_projects">ดูผลงาน</a>
+            <a href="#contact" class="btn btn--ghost" data-key="hero_cta_contact">ทักผมได้</a>
+          </div>
+        </div>
+
+        <div class="hero__panel" data-reveal data-delay="2">
+          <article class="identity-card" aria-label="Rhachata profile summary">
+            <div class="identity-card__top">
+              <span data-key="profile_label">PORTFOLIO</span>
+              <span data-key="profile_meta_year">v1 · 2026</span>
+            </div>
+            <div class="identity-card__main">
+              <p class="identity-card__brand" data-site="brand">Ryujyn</p>
+              <h2 data-site="owner">Rhachata Meesilp</h2>
+              <p data-key="profile_role">Chef-turned-builder</p>
+            </div>
+            <div class="identity-card__meta">
+              <div>
+                <span data-key="profile_location_label">Based in</span>
+                <strong data-site="location">Bangkok, Thailand</strong>
+              </div>
+              <div>
+                <span>Status</span>
+                <strong data-key="profile_status">Open to freelance & collaboration</strong>
+              </div>
+            </div>
+            <div class="identity-card__focus" aria-label="Focus areas">
+              <span data-key="profile_focus_label">Focus</span>
+              <div>
+                <strong data-key="profile_focus_1">Automation</strong>
+                <strong data-key="profile_focus_2">AI Agents</strong>
+                <strong data-key="profile_focus_3">Micro-SaaS</strong>
+                <strong data-key="profile_focus_4">B2B Tools</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="container hero__signals" data-reveal data-delay="4">
+        <div class="signal">
+          <strong data-key="signal_1_label_top">Automation</strong>
+          <span data-key="signal_1_label_bottom">ลดงานซ้ำ ๆ ให้ระบบรับช่วงต่ออย่างเงียบและต่อเนื่อง</span>
+        </div>
+        <div class="signal">
+          <strong data-key="signal_2_label_top">AI Agents</strong>
+          <span data-key="signal_2_label_bottom">ทดลองใช้ AI เป็นผู้ช่วยจัดการ flow งาน ไม่ใช่แค่ตอบคำถาม</span>
+        </div>
+        <div class="signal">
+          <strong data-key="signal_3_label_top">Micro-SaaS</strong>
+          <span data-key="signal_3_label_bottom">มองหาเครื่องมือเล็ก ๆ ที่แก้ปัญหา B2B ได้ชัดและโตต่อได้</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="about__grid">
+          <header class="section__header" data-reveal>
+            <span class="section__num">01 — <span data-key="about_eyebrow">เรื่องราว</span></span>
+            <h2 class="section__title" data-key="about_title">จากเชฟสู่คนสร้างระบบ</h2>
+          </header>
+
+          <div class="about__story" data-reveal data-delay="1">
+            <p class="about__lead" data-key="about_lead">
+              ผมไม่ได้เริ่มเขียนโค้ดเพราะอยากทำเว็บสวย แต่เริ่มเพราะเห็นว่ามีงานในร้านอาหารหลายอย่างที่ยังต้องนั่งไล่เช็กเองทุกคืน
+            </p>
+            <p data-key="about_p1">
+              ผมยืนอยู่ทั้งสองฝั่ง ฝั่งหน้างานที่ต้องตัดสินใจเร็ว และฝั่งระบบที่ต้องคิดเป็นโครงสร้าง นั่นคือเหตุผลที่ผมออกแบบเครื่องมือให้ใช้ง่ายภายใต้แรงกดดัน ไม่ใช่ dashboard ที่เพิ่มงานให้ทีม
+            </p>
+            <p data-key="about_p2">
+              ตอนนี้ผมโฟกัส Automation, AI Agents, Restaurant Tech และ Micro-SaaS เพื่อทำงานร่วมกับเจ้าของร้านที่อยากเปลี่ยน pain point ในแต่ละวันให้กลายเป็นระบบที่ใช้ได้ยาว
+            </p>
+
+            <div class="about__photos" aria-hidden="true">
+              <img src="assets/kitchen/dish-1.jpg" alt="" loading="lazy">
+              <img src="assets/kitchen/dish-2.jpg" alt="" loading="lazy">
+              <img src="assets/kitchen/dish-3.jpg" alt="" loading="lazy">
+            </div>
+
+            <div class="about__stats" role="list">
+              <div role="listitem">
+                <strong data-key="stat_1_num">3+</strong>
+                <span data-key="stat_1_label">ปีในครัวร้านอาหาร</span>
+              </div>
+              <div role="listitem">
+                <strong data-key="stat_2_num">Food</strong>
+                <span data-key="stat_2_label">Restaurant Tech</span>
+              </div>
+              <div role="listitem">
+                <strong data-key="stat_3_num">Auto</strong>
+                <span data-key="stat_3_label">Automation First</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOCUS -->
+    <section id="focus" class="section section--alt">
+      <div class="container">
+        <header class="section__header section__header--split" data-reveal>
+          <div>
+            <span class="section__num">02 — <span data-key="focus_eyebrow">แนวทาง</span></span>
+            <h2 class="section__title" data-key="focus_title">แนวทางที่ผมกำลังสร้าง</h2>
+          </div>
+          <p class="section__intro" data-key="focus_intro">
+            Portfolio นี้เป็นพื้นที่เก็บงานและทิศทางที่ผมกำลังทดลอง ตอนนี้ผมโฟกัสงานที่ช่วยเปลี่ยนงานซ้ำ ข้อมูลกระจัดกระจาย และ flow ที่พึ่งคนมากเกินไป ให้กลายเป็นระบบที่ดูแลง่ายขึ้น
+          </p>
+        </header>
+
+        <div class="focus__grid">
+          <article class="focus-card" data-reveal data-delay="1">
+            <span data-key="focus_1_num">01</span>
+            <h3 data-key="focus_1_title">Automation</h3>
+            <p data-key="focus_1_desc">สร้าง flow ให้ระบบรับงานที่คนต้องเช็กซ้ำ ๆ เช่น alert, stock routine, daily operation และ report เบื้องต้น</p>
+            <strong data-key="focus_1_keys">Alerts · Reports · Background jobs</strong>
+          </article>
+          <article class="focus-card" data-reveal data-delay="2">
+            <span data-key="focus_2_num">02</span>
+            <h3 data-key="focus_2_title">Automation & AI Agents</h3>
+            <p data-key="focus_2_desc">ทดลองออกแบบ agent และ workflow ที่ช่วยเตือน สรุป ตรวจเช็ก หรือประสานข้อมูลระหว่างเครื่องมือที่ทีมใช้อยู่แล้ว</p>
+            <strong data-key="focus_2_keys">AI agents · Workflows · Integrations</strong>
+          </article>
+          <article class="focus-card" data-reveal data-delay="3">
+            <span data-key="focus_3_num">03</span>
+            <h3 data-key="focus_3_title">Micro-SaaS & B2B Tools</h3>
+            <p data-key="focus_3_desc">ค่อย ๆ เก็บ pain point จากงานจริง แล้วเปลี่ยนเป็นเครื่องมือขนาดเล็กที่เจ้าของธุรกิจเข้าใจง่ายและทีมเล็กดูแลต่อได้</p>
+            <strong data-key="focus_3_keys">Niche tools · Owner-first · Small teams</strong>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section">
+      <div class="container">
+        <header class="section__header section__header--split" data-reveal>
+          <div>
+            <span class="section__num">03 — <span data-key="projects_eyebrow">ผลงาน</span></span>
+            <h2 class="section__title" data-key="projects_title">Work index</h2>
+          </div>
+          <p class="section__intro" data-key="projects_intro">
+            พื้นที่เก็บผลงานที่ผมจะค่อย ๆ เติมเมื่อสร้างงานใหม่ แต่ละชิ้นจะเล่าปัญหา วิธีแก้ ผลลัพธ์ และ stack เพื่อให้เห็นวิธีคิดเบื้องหลัง ไม่ใช่แค่หน้าตา
+          </p>
+        </header>
+
+        <div class="projects__grid" id="projects-grid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="section section--alt">
+      <div class="container">
+        <header class="section__header" data-reveal>
+          <span class="section__num">04 — <span data-key="skills_eyebrow">ทักษะ</span></span>
+          <h2 class="section__title" data-key="skills_title">สิ่งที่ผมถนัด</h2>
+        </header>
+
+        <div class="skills__grid" id="skills-grid"></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section section--alt">
+      <div class="container">
+        <div class="contact__grid">
+          <div data-reveal>
+            <span class="section__num">05 — <span data-key="contact_eyebrow">ติดต่อ</span></span>
+            <h2 class="section__title" data-key="contact_title">คุยงานกันได้ครับ</h2>
+            <p class="contact__lead" data-key="contact_lead">
+              ถ้าคุณมีร้านอาหาร ธุรกิจ B2B หรือไอเดียอยากเปลี่ยนงานซ้ำซากให้กลายเป็นระบบ ผมยินดีช่วยตั้งแต่ฟังปัญหา ออกแบบ flow จนถึงทำ prototype ที่จับต้องได้
+            </p>
+            <div class="contact__status">
+              <span class="contact__status-dot"></span>
+              <span data-key="contact_status">เปิดรับงาน Freelance และ Collaboration</span>
+            </div>
+          </div>
+
+          <div class="contact__links" data-reveal data-delay="1">
+            <a href="mailto:rrhata2001@gmail.com" class="contact__link" id="contact-email">
+              <span data-key="contact_email">อีเมล</span>
+              <strong data-site="email">rrhata2001@gmail.com</strong>
+            </a>
+            <a href="https://github.com/ryujyn" target="_blank" rel="noopener" class="contact__link" id="contact-github">
+              <span data-key="contact_github">GitHub</span>
+              <strong data-site="githubLabel">github.com/ryujyn</strong>
+            </a>
+            <a href="tel:0831565944" class="contact__link" data-site-href="phoneLink">
+              <span data-key="contact_phone">โทรศัพท์</span>
+              <strong data-site="phone">083-156-5944</strong>
+            </a>
+            <a href="https://line.me/ti/p/~ryu2001." class="contact__link" data-site-href="lineLink" target="_blank" rel="noopener">
+              <span data-key="contact_line">LINE</span>
+              <strong data-site="line">ryu2001.</strong>
+            </a>
+            <div class="contact__link">
+              <span data-key="contact_location">สถานที่</span>
+              <strong data-site="location">Bangkok, Thailand</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span class="footer__brand">© <span id="footer-year">2026</span> · RYUJYN</span>
+      <span data-key="footer_text">Built with HTML, CSS, and Vanilla JS · Designed around real restaurant problems</span>
+    </div>
+  </footer>
+
+  <script src="data/content.js?v=2"></script>
+  <script src="scripts/main.js?v=2"></script>
+  <script src="scripts/i18n.js?v=2"></script>
+</body>
+</html>

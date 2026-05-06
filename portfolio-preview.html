@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Preview | Rhachata Meesilp</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #10203d;
+    }
+    main {
+      width: min(100% - 32px, 1120px);
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #d8dfec;
+      padding-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 6vw, 64px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+    p {
+      color: #526178;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    a.button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: #f3c13a;
+      color: #10203d;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    a.button.secondary {
+      border: 1px solid #d8dfec;
+      background: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 18px;
+      align-items: start;
+    }
+    .panel {
+      border: 1px solid #d8dfec;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 16px 42px rgba(16, 32, 61, 0.08);
+      overflow: hidden;
+    }
+    .panel h2 {
+      margin: 0;
+      padding: 16px 18px;
+      border-bottom: 1px solid #d8dfec;
+      font-size: 16px;
+    }
+    iframe, object {
+      display: block;
+      width: 100%;
+      height: 720px;
+      border: 0;
+      background: #fff;
+    }
+    .side {
+      display: grid;
+      gap: 18px;
+    }
+    .qr {
+      padding: 22px;
+      text-align: center;
+    }
+    .qr img {
+      width: 220px;
+      max-width: 100%;
+      background: #fff;
+    }
+    .note {
+      padding: 18px;
+      font-size: 14px;
+    }
+    code {
+      display: block;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #eef2f8;
+      color: #10203d;
+      overflow-wrap: anywhere;
+    }
+    @media (max-width: 900px) {
+      header, .actions { align-items: start; justify-content: flex-start; }
+      header { flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      iframe, object { height: 620px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Portfolio Preview</h1>
+        <p>Quick view for the website, one-page PDF, and QR code.</p>
+      </div>
+      <div class="actions">
+        <a class="button" href="index.html">Open Website</a>
+        <a class="button secondary" href="dist/rhachata-meesilp-portfolio.pdf">Open PDF</a>
+        <a class="button secondary" href="dist/portfolio-qr.svg">Open QR</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Website</h2>
+        <iframe src="index.html" title="Website portfolio preview"></iframe>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>QR Code</h2>
+          <div class="qr">
+            <img src="dist/portfolio-qr.svg" alt="QR code for website portfolio">
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>PDF</h2>
+          <object data="dist/rhachata-meesilp-portfolio.pdf" type="application/pdf">
+            <div class="note">
+              Your browser cannot preview the PDF here.
+              <a href="dist/rhachata-meesilp-portfolio.pdf">Open the PDF directly</a>.
+            </div>
+          </object>
+        </section>
+
+        <section class="panel note">
+          <strong>Current QR target</strong>
+          <code>https://ryujyn.github.io/WebPortfolio/</code>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
