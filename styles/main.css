@@ -40,7 +40,7 @@
 
   /* Layout */
   --max-w: 1180px;
-  --nav-h: 72px;
+  --nav-h: 60px;
   --radius-sm: 10px;
   --radius: 14px;
   --radius-lg: 22px;
@@ -221,7 +221,7 @@ img { max-width: 100%; display: block; }
 }
 
 .brand-logo--nav {
-  width: 5.4rem;
+  width: 4.2rem;
 }
 
 .brand-logo--identity {
