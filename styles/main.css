@@ -1441,12 +1441,12 @@ a.contact__link:hover {
   }
 
   .mockup--gallery {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;   /* stack vertically on mobile */
   }
 
   .mockup--gallery img:first-child {
-    grid-column: span 2;
-    aspect-ratio: 16 / 9;
+    grid-column: span 1;          /* cancel the desktop span */
+    aspect-ratio: 9 / 16;        /* restore portrait ratio */
   }
 
   .project-card__head {
