@@ -260,9 +260,11 @@ const PROJECTS = {
       mockup: {
         type: "gallery",
         images: [
-          { src: "assets/kitchenbot/line-alert.jpg?v=2", alt: "LINE Group chat แสดง KitchenBot แจ้งเตือน stock ใกล้หมดในกลุ่มทีมร้านอาหาร" },
+          { src: "assets/kitchenbot/login.jpg",     alt: "หน้า login KitchenBot" },
+          { src: "assets/kitchenbot/menu.jpg",       alt: "หน้าเมนูหลัก KitchenBot — ชิวของขาย เติมสต็อค ดูสต็อค" },
           { src: "assets/kitchenbot/stock-list.jpg", alt: "หน้าจัดการ stock พร้อม badge ใกล้หมดสีแดงของรายการที่ต้องเติม" },
-          { src: "assets/kitchenbot/menu.jpg", alt: "หน้าเมนูหลัก KitchenBot — ชิวของขาย เติมสต็อค ดูสต็อค" },
+          { src: "assets/kitchenbot/line-alert.jpg", alt: "LINE Group chat แสดง KitchenBot แจ้งเตือน stock ใกล้หมดในกลุ่มทีมร้านอาหาร" },
+          { src: "assets/kitchenbot/histiry.jpg",    alt: "หน้าประวัติการเติม stock KitchenBot" },
         ],
       },
     },
@@ -297,9 +299,11 @@ const PROJECTS = {
       mockup: {
         type: "gallery",
         images: [
-          { src: "assets/kitchenbot/line-alert.jpg?v=2", alt: "LINE Group chat showing KitchenBot low-stock alerts live in a restaurant team" },
+          { src: "assets/kitchenbot/login.jpg",     alt: "KitchenBot login screen" },
+          { src: "assets/kitchenbot/menu.jpg",       alt: "KitchenBot main menu — three clear action buttons" },
           { src: "assets/kitchenbot/stock-list.jpg", alt: "Stock management interface with red low-stock badges on items that need restocking" },
-          { src: "assets/kitchenbot/menu.jpg", alt: "KitchenBot main menu — three clear action buttons" },
+          { src: "assets/kitchenbot/line-alert.jpg", alt: "LINE Group chat showing KitchenBot low-stock alerts live in a restaurant team" },
+          { src: "assets/kitchenbot/histiry.jpg",    alt: "KitchenBot stock history view" },
         ],
       },
     },

@@ -1441,12 +1441,26 @@ a.contact__link:hover {
   }
 
   .mockup--gallery {
-    grid-template-columns: 1fr;   /* stack vertically on mobile */
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .mockup--gallery img {
+    flex: 0 0 62vw;
+    width: 62vw;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    object-position: top;
+    scroll-snap-align: start;
+    border-radius: 12px;
   }
 
   .mockup--gallery img:first-child {
-    grid-column: span 1;          /* cancel the desktop span */
-    aspect-ratio: 9 / 16;        /* restore portrait ratio */
+    grid-column: unset;
   }
 
   .project-card__head {
