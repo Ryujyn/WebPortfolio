@@ -1,10 +1,19 @@
+# Node
+node_modules/
+.npm-cache/
+
+# Build output
+dist/
+build/
+
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
-build/
+
+# Env
 .env
+.env*.local
 
 # OS
 .DS_Store

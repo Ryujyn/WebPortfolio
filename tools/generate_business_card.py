@@ -28,6 +28,7 @@ TITLE = "F&B Solutions Engineer"
 EMAIL = "rrhata2001@gmail.com"
 PHONE = "083-156-5944"
 LINE_ID = "ryu2001."
+WEBSITE = "buildwithsparx.com"
 
 DPI = 300
 TRIM_W_MM = 90
@@ -141,6 +142,9 @@ def make_front() -> Image.Image:
     safe_right  = BLEED + TRIM_W - EDGE_PAD
     safe_h      = safe_bottom - safe_top
 
+    # Text block left edge at 10mm from trim left edge
+    text_left = BLEED + mm_px(10)
+
     # ── Fonts ──────────────────────────────────────────────────────────────
     name_font    = load_font(FONT_MED,   13.5)   # medium weight, 20% bigger
     title_font   = load_font(FONT_LIGHT,  8)
@@ -155,7 +159,7 @@ def make_front() -> Image.Image:
     name_title_gap = mm_px(2)
 
     # ── Measure contact rows ───────────────────────────────────────────────
-    contact_lines   = [EMAIL, PHONE, f"LINE: {LINE_ID}"]
+    contact_lines   = [EMAIL, PHONE, f"LINE: {LINE_ID}", WEBSITE]
     contact_row_gap = mm_px(1.5)
     sample_b = draw.textbbox((0, 0), EMAIL, font=contact_font)
     row_h    = sample_b[3] - sample_b[1]
@@ -167,13 +171,13 @@ def make_front() -> Image.Image:
     block_y       = safe_top + (safe_h - total_block_h) // 2
 
     # ── Draw name + title ──────────────────────────────────────────────────
-    draw.text((safe_left, block_y), NAME, font=name_font, fill=TEXT)
-    draw.text((safe_left, block_y + name_h + name_title_gap), TITLE, font=title_font, fill=MID_TEXT)
+    draw.text((text_left, block_y), NAME, font=name_font, fill=TEXT)
+    draw.text((text_left, block_y + name_h + name_title_gap), TITLE, font=title_font, fill=MID_TEXT)
 
     # ── Draw contacts ──────────────────────────────────────────────────────
     cy = block_y + name_h + name_title_gap + title_h + gap_4mm
     for line in contact_lines:
-        draw.text((safe_left, cy), line, font=contact_font, fill=LIGHT_TEXT)
+        draw.text((text_left, cy), line, font=contact_font, fill=LIGHT_TEXT)
         cy += row_h + contact_row_gap
 
     # ── QR — bottom-right, 22mm, flush to safe_bottom ─────────────────────

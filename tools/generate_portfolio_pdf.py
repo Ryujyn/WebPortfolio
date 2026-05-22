@@ -1,21 +1,41 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
+import io
 from pathlib import Path
+
+from PIL import Image
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "dist"
-PDF_PATH = OUT_DIR / "rhachata-meesilp-portfolio.pdf"
+PDF_PATH = OUT_DIR / "rhachata-meesilp-resume.pdf"
 QR_SVG_PATH = OUT_DIR / "portfolio-qr.svg"
+QR_PNG_PATH = OUT_DIR / "portfolio-qr.png"
 
 OWNER = "Rhachata Meesilp"
 BRAND = "Ryujyn"
-ROLE = "Chef to Sales Engineer"
+ROLE = "COMMIS CHEF / AUTOMATION BUILDER"
 WEBSITE_URL = "https://ryujyn.github.io/WebPortfolio/"
 EMAIL = "rrhata2001@gmail.com"
+PHONE = "083-156-5944"
+LINE_ID = "ryu2001."
 GITHUB = "github.com/ryujyn"
-PHONE = "Available on request"
-LINE = "Available on request"
+LOCATION = "Bangkok, Thailand"
+
+NAVY = colors.HexColor("#0e1c34")
+NAVY_2 = colors.HexColor("#16294a")
+YELLOW = colors.HexColor("#f3c13a")
+INK = colors.HexColor("#0e1c34")
+MUTED = colors.HexColor("#4d5a72")
+FAINT = colors.HexColor("#8693aa")
+PAPER = colors.HexColor("#f6f8fc")
+PAPER_2 = colors.HexColor("#eef2f9")
+LINE_COLOR = colors.HexColor("#dbe1ec")
+WHITE = colors.white
 
 
 def _bits_from_int(value: int, length: int) -> list[int]:
@@ -69,12 +89,9 @@ def _rs_remainder(data: list[int], degree: int) -> list[int]:
 
 
 def _make_codewords(text: str) -> list[int]:
-    # QR version 4, error correction L: 80 data codewords + 20 EC codewords.
-    data_capacity = 80
+    data_capacity = 80  # QR version 4, error correction L.
     raw = text.encode("utf-8")
-    bits: list[int] = []
-    bits += [0, 1, 0, 0]
-    bits += _bits_from_int(len(raw), 8)
+    bits: list[int] = [0, 1, 0, 0] + _bits_from_int(len(raw), 8)
     for byte in raw:
         bits += _bits_from_int(byte, 8)
     bits += [0] * min(4, data_capacity * 8 - len(bits))
@@ -91,7 +108,6 @@ def _make_codewords(text: str) -> list[int]:
     pads = [0xEC, 0x11]
     while len(data) < data_capacity:
         data.append(pads[len(data) % 2])
-
     return data + _rs_remainder(data, 20)
 
 
@@ -126,16 +142,11 @@ def _blank_qr(version: int = 4) -> tuple[list[list[bool | None]], list[list[bool
         set_module(6, i, dark)
         set_module(i, 6, dark)
 
-    def alignment(center_r: int, center_c: int) -> None:
-        for dr in range(-2, 3):
-            for dc in range(-2, 3):
-                dark = max(abs(dr), abs(dc)) != 1
-                set_module(center_r + dr, center_c + dc, dark)
+    for dr in range(-2, 3):
+        for dc in range(-2, 3):
+            set_module(26 + dr, 26 + dc, max(abs(dr), abs(dc)) != 1)
 
-    alignment(26, 26)
     set_module(25, 8, True)
-
-    # Reserve format information cells.
     for i in range(9):
         if i != 6:
             set_module(8, i, False)
@@ -182,8 +193,7 @@ def _draw_data(modules: list[list[bool | None]], function: list[list[bool]], cod
                 cc = c - dc
                 if function[r][cc]:
                     continue
-                bit = bits[bit_index] if bit_index < len(bits) else 0
-                dark = bool(bit)
+                dark = bool(bits[bit_index]) if bit_index < len(bits) else False
                 if _mask_bit(mask, r, cc):
                     dark = not dark
                 modules[r][cc] = dark
@@ -193,7 +203,7 @@ def _draw_data(modules: list[list[bool | None]], function: list[list[bool]], cod
 
 
 def _format_bits(mask: int) -> int:
-    data = (1 << 3) | mask  # Error correction L.
+    data = (1 << 3) | mask
     value = data << 10
     gen = 0x537
     for i in range(14, 9, -1):
@@ -216,7 +226,6 @@ def _draw_format(modules: list[list[bool | None]], mask: int) -> None:
     modules[7][8] = bit(8)
     for i in range(9, 15):
         modules[14 - i][8] = bit(i)
-
     for i in range(8):
         modules[size - 1 - i][8] = bit(i)
     for i in range(8, 15):
@@ -247,14 +256,6 @@ def _penalty(modules: list[list[bool | None]]) -> int:
             if grid[r][c + 1] == block and grid[r + 1][c] == block and grid[r + 1][c + 1] == block:
                 score += 3
 
-    pattern = [True, False, True, True, True, False, True, False, False, False, False]
-    for rows in (grid, list(map(list, zip(*grid)))):
-        for row in rows:
-            for i in range(size - 10):
-                chunk = row[i : i + 11]
-                if chunk == pattern or chunk == list(reversed(pattern)):
-                    score += 40
-
     dark = sum(cell for row in grid for cell in row)
     percent = dark * 100 / (size * size)
     score += int(abs(percent - 50) // 5) * 10
@@ -262,24 +263,33 @@ def _penalty(modules: list[list[bool | None]]) -> int:
 
 
 def make_qr(text: str) -> list[list[bool]]:
-    codewords = _make_codewords(text)
-    best = None
-    for mask in range(8):
-        modules, function = _blank_qr()
-        _draw_data(modules, function, codewords, mask)
-        _draw_format(modules, mask)
-        score = _penalty(modules)
-        if best is None or score < best[0]:
-            best = (score, modules)
-    assert best is not None
-    return [[bool(cell) for cell in row] for row in best[1]]
+    from reportlab.graphics.barcode.qr import QrCodeWidget
+
+    qr = QrCodeWidget(text).qr
+    qr.make()
+    size = qr.getModuleCount()
+    return [[bool(qr.isDark(row, col)) for col in range(size)] for row in range(size)]
 
 
-def write_qr_svg(grid: list[list[bool]]) -> None:
+def write_qr_assets(grid: list[list[bool]]) -> ImageReader:
     size = len(grid)
-    scale = 8
     quiet = 4
+    scale = 12
     total = (size + quiet * 2) * scale
+    img = Image.new("RGB", (total, total), "white")
+    pixels = img.load()
+    for r, row in enumerate(grid):
+        for c, dark in enumerate(row):
+            if not dark:
+                continue
+            x0 = (c + quiet) * scale
+            y0 = (r + quiet) * scale
+            for y in range(y0, y0 + scale):
+                for x in range(x0, x0 + scale):
+                    pixels[x, y] = (14, 28, 52)
+
+    img.save(QR_PNG_PATH)
+
     rects = []
     for r, row in enumerate(grid):
         for c, dark in enumerate(row):
@@ -289,164 +299,347 @@ def write_qr_svg(grid: list[list[bool]]) -> None:
                 )
     QR_SVG_PATH.write_text(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {total} {total}">'
-        f'<rect width="{total}" height="{total}" fill="#fff"/><g fill="#10203d">{"".join(rects)}</g></svg>',
+        f'<rect width="{total}" height="{total}" fill="#fff"/><g fill="#0e1c34">{"".join(rects)}</g></svg>',
         encoding="utf-8",
     )
 
-
-def pdf_escape(text: str) -> str:
-    return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-
-
-def text_line(x: float, y: float, text: str, size: int, font: str = "F1", color: str = "10 32 61") -> str:
-    return f"{color} rg BT /{font} {size} Tf {x:.2f} {y:.2f} Td ({pdf_escape(text)}) Tj ET\n"
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return ImageReader(buffer)
 
 
-def rect(x: float, y: float, w: float, h: float, color: str, stroke: bool = False) -> str:
-    op = "B" if stroke else "f"
-    return f"{color} rg {x:.2f} {y:.2f} {w:.2f} {h:.2f} re {op}\n"
-
-
-def wrap(text: str, max_chars: int) -> list[str]:
-    lines, current = [], ""
+def draw_wrapped(c: canvas.Canvas, text: str, x: float, y: float, width: float, size: int, leading: int, color=MUTED) -> float:
+    c.setFillColor(color)
+    c.setFont("Helvetica", size)
+    line = ""
     for word in text.split():
-        candidate = f"{current} {word}".strip()
-        if len(candidate) <= max_chars:
-            current = candidate
+        candidate = f"{line} {word}".strip()
+        if c.stringWidth(candidate, "Helvetica", size) <= width:
+            line = candidate
         else:
-            if current:
-                lines.append(current)
-            current = word
-    if current:
-        lines.append(current)
-    return lines
+            c.drawString(x, y, line)
+            y -= leading
+            line = word
+    if line:
+        c.drawString(x, y, line)
+        y -= leading
+    return y
 
 
-def build_pdf(grid: list[list[bool]]) -> bytes:
-    width, height = 595, 842
-    navy = "16 32 61"
-    navy_dark = "9 19 36"
-    yellow = "243 193 58"
-    paper = "245 247 251"
-    muted = "82 97 120"
-    white = "255 255 255"
+def heading(c: canvas.Canvas, text: str, x: float, y: float, dark: bool = False) -> None:
+    c.setFont("Helvetica-Bold", 10)
+    c.setFillColor(WHITE if dark else INK)
+    c.drawString(x, y, text.upper())
+    c.setStrokeColor(YELLOW)
+    c.setLineWidth(2)
+    c.line(x, y - 7, x + 42, y - 7)
 
-    content = []
-    content.append(rect(0, 0, width, height, paper))
-    content.append(rect(0, 0, 178, height, navy_dark))
-    content.append(rect(36, 716, 78, 6, yellow))
-    content.append(text_line(36, 760, BRAND.upper(), 11, "F2", yellow))
-    content.append(text_line(36, 735, OWNER, 24, "F2", white))
-    content.append(text_line(36, 710, ROLE, 12, "F1", "205 215 232"))
 
-    sidebar_items = [
-        ("Email", EMAIL),
-        ("GitHub", GITHUB),
-        ("Phone", PHONE),
-        ("LINE", LINE),
+def pill(c: canvas.Canvas, text: str, x: float, y: float, pad_x: float = 7) -> float:
+    c.setFont("Helvetica-Bold", 7)
+    text_w = c.stringWidth(text, "Helvetica-Bold", 7)
+    w = text_w + pad_x * 2
+    c.setFillColor(PAPER_2)
+    c.roundRect(x, y - 2, w, 16, 8, stroke=0, fill=1)
+    c.setFillColor(INK)
+    c.drawString(x + pad_x, y + 3, text)
+    return x + w + 5
+
+
+def build_pdf(qr_image: ImageReader) -> None:
+    OUT_DIR.mkdir(exist_ok=True)
+    c = canvas.Canvas(str(PDF_PATH), pagesize=A4)
+    w, h = A4
+
+    left_w = 205
+    margin = 34
+    right_x = left_w + 34
+    right_w = w - right_x - margin
+
+    c.setFillColor(PAPER)
+    c.rect(0, 0, w, h, stroke=0, fill=1)
+    c.setFillColor(NAVY)
+    c.rect(0, 0, left_w, h, stroke=0, fill=1)
+
+    # Header, adapted from the older resume: name centered at top with role below.
+    c.setFillColor(INK)
+    c.setFont("Helvetica-Bold", 31)
+    c.drawString(right_x, h - 64, OWNER)
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColor(YELLOW)
+    c.drawString(right_x, h - 84, ROLE)
+    c.setFont("Helvetica", 9)
+    c.setFillColor(FAINT)
+
+    c.setFillColor(PAPER)
+    c.rect(w - margin - 78, h - 96, 82, 18, stroke=0, fill=1)
+    c.setFillColor(FAINT)
+    c.drawRightString(w - margin, h - 84, "Resume / 2026")
+
+    # Left column.
+    lx = 28
+    y = h - 76
+    c.setFillColor(YELLOW)
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(lx, y, BRAND.upper())
+    y -= 18
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 22)
+    c.drawString(lx, y, "Resume")
+    y -= 42
+
+    heading(c, "Contact", lx, y, dark=True)
+    y -= 26
+    contact_items = [
+        ("EMAIL", EMAIL),
+        ("PHONE", PHONE),
+        ("LINE", LINE_ID),
+        ("GITHUB", GITHUB),
+        ("BASED IN", LOCATION),
     ]
-    y = 650
-    for label, value in sidebar_items:
-        content.append(text_line(36, y, label.upper(), 7, "F2", yellow))
-        for line in wrap(value, 22):
-            y -= 13
-            content.append(text_line(36, y, line, 9, "F1", "232 238 248"))
+    for label, value in contact_items:
+        c.setFont("Helvetica-Bold", 7)
+        c.setFillColor(YELLOW)
+        c.drawString(lx, y, label)
+        y -= 12
+        c.setFont("Helvetica", 9)
+        c.setFillColor(colors.HexColor("#e5ecf7"))
+        c.drawString(lx, y, value)
         y -= 20
 
-    qr_x, qr_y, qr_size = 44, 88, 92
-    content.append(rect(qr_x - 8, qr_y - 8, qr_size + 16, qr_size + 16, white))
-    cell = qr_size / (len(grid) + 8)
-    for r, row in enumerate(grid):
-        for c, dark in enumerate(row):
-            if dark:
-                content.append(rect(qr_x + (c + 4) * cell, qr_y + qr_size - (r + 5) * cell, cell, cell, navy))
-    content.append(text_line(36, 62, "Scan for website portfolio", 8, "F2", yellow))
-    content.append(text_line(36, 48, WEBSITE_URL.replace("https://", ""), 7, "F1", "205 215 232"))
+    y -= 6
+    heading(c, "Focus", lx, y, dark=True)
+    y -= 27
+    for item in ["Automation", "AI Agents", "Micro-SaaS", "B2B Tools"]:
+        c.setFillColor(colors.HexColor("#223657"))
+        c.roundRect(lx, y - 3, 132, 17, 8, stroke=0, fill=1)
+        c.setFillColor(WHITE)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(lx + 9, y + 2, item)
+        y -= 23
 
-    x0 = 214
-    content.append(text_line(x0, 760, "Portfolio", 11, "F2", yellow))
-    content.append(text_line(x0, 728, "Restaurant problems,", 28, "F2", navy))
-    content.append(text_line(x0, 695, "built into practical systems.", 28, "F2", navy))
-    intro = (
-        "I build automation and restaurant-tech tools from real operational pain. "
-        "My background in kitchen work helps me speak with owners, understand floor pressure, "
-        "and turn repeated work into clear systems."
+    y -= 4
+    heading(c, "Core Skills", lx, y, dark=True)
+    y -= 27
+    for item in ["Beginner mindset", "Team Work", "Time Management", "Prioritize"]:
+        c.setFillColor(colors.HexColor("#223657"))
+        c.roundRect(lx, y - 3, 148, 17, 8, stroke=0, fill=1)
+        c.setFillColor(WHITE)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(lx + 9, y + 2, item)
+        y -= 23
+
+    y -= 2
+    heading(c, "Scan Website", lx, y, dark=True)
+    y -= 118
+    qr_size = 92
+    c.setFillColor(WHITE)
+    c.roundRect(lx, y, qr_size, qr_size, 8, stroke=0, fill=1)
+    c.drawImage(qr_image, lx + 7, y + 7, qr_size - 14, qr_size - 14, mask="auto")
+    c.setFont("Helvetica", 6.8)
+    c.setFillColor(colors.HexColor("#d7e0ef"))
+    c.drawString(lx, y - 13, WEBSITE_URL.replace("https://", ""))
+
+    # Right column body.
+    y = h - 128
+    heading(c, "About me", right_x, y)
+    y -= 25
+    y = draw_wrapped(
+        c,
+        "A commis chef who is growing into automation and practical software. I understand restaurant operations from real kitchen work, "
+        "and I use that background to build tools that reduce repeated checks, scattered data, and fragile daily workflows.",
+        right_x,
+        y,
+        right_w,
+        9,
+        13,
+        MUTED,
     )
-    y = 656
-    for line in wrap(intro, 62):
-        content.append(text_line(x0, y, line, 10, "F1", muted))
-        y -= 15
 
-    content.append(rect(x0, 552, 333, 1, yellow))
-    content.append(text_line(x0, 526, "Featured Project", 10, "F2", yellow))
-    content.append(text_line(x0, 495, "KitchenBot", 32, "F2", navy))
-    content.append(text_line(x0, 474, "Web App + LINE Bot | Live in use", 10, "F2", muted))
+    y -= 14
+    heading(c, "Experience Snapshot", right_x, y)
+    y -= 30
+    experiences = [
+        (
+            "Tribe Sky Beach Club",
+            "Nov 2025 - Present",
+            "Current kitchen team member, supporting daily preparation and service in a high-traffic hospitality environment.",
+            True,
+        ),
+        (
+            "Siam Orchid cafe",
+            "Jul 2024 - Oct 2025",
+            "Prepared breakfast buffet stations including salads, fruits, bread, and main dishes, while replenishing food for daily service.",
+            False,
+        ),
+        (
+            "Thongyoy cafe",
+            "Apr 2024 - Jun 2024",
+            "Trained on the menu before store opening, made fruit smoothies, handled payments, prepared mango sticky rice, and checked stock.",
+            False,
+        ),
+        (
+            "Miracle Suvarnabhumi Airport Hotel",
+            "Mar 2022 - Mar 2024",
+            "Maintained station cleanliness, prepared ingredients for a la carte orders, cooked lunch and dinner, and helped prepare staff meals.",
+            False,
+        ),
+    ]
+    for name, period, detail, is_current in experiences:
+        c.setFillColor(WHITE)
+        c.roundRect(right_x, y - 68, right_w, 58, 9, stroke=0, fill=1)
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 13 if is_current else 12)
+        c.drawString(right_x + 12, y - 27, name)
+        c.setFillColor(YELLOW)
+        c.setFont("Helvetica-Bold", 9.2 if is_current else 8.5)
+        c.drawRightString(right_x + right_w - 12, y - 27, period)
+        draw_wrapped(c, detail, right_x + 12, y - 43, right_w - 24, 7.6, 10, MUTED)
+        y -= 74
+
+    y -= 16
+    heading(c, "Education", right_x, y)
+    y -= 28
+    education = [
+        ("Chonburi Sukkabot School", "2014 - 2020", "Sci - Math Classroom, GPA 3.75"),
+        ("Ramkhamhaeng University", "2022 - Present", "Continuing university studies while building practical work experience."),
+    ]
+    for school, period, detail in education:
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 9.2)
+        c.drawString(right_x, y, school)
+        c.setFillColor(FAINT)
+        c.setFont("Helvetica-Bold", 7.8)
+        c.drawRightString(right_x + right_w, y, period)
+        y -= 13
+        y = draw_wrapped(c, detail, right_x, y, right_w, 7.8, 10, MUTED)
+        y -= 8
+
+    y -= 2
+    heading(c, "Portfolio Note", right_x, y)
+    y -= 24
+    draw_wrapped(
+        c,
+        "KitchenBot and future software work are kept on the web portfolio. Scan the QR code to review projects, screenshots, and technical details.",
+        right_x,
+        y,
+        right_w,
+        8.5,
+        12,
+        MUTED,
+    )
+
+    c.setFillColor(FAINT)
+    c.setFont("Helvetica", 7.5)
+    c.drawString(right_x, 36, "Resume first. Portfolio projects and technical details are available through the QR code.")
+
+    c.setTitle(f"{OWNER} Resume")
+    c.setAuthor(OWNER)
+    c.save()
+    return
+
+    y -= 14
+    heading(c, "Featured Project", right_x, y)
+    y -= 34
+    c.setFillColor(INK)
+    c.setFont("Helvetica-Bold", 25)
+    c.drawString(right_x, y, "KitchenBot")
+    c.setFont("Helvetica-Bold", 9)
+    c.setFillColor(YELLOW)
+    c.drawString(right_x + 148, y + 5, "WEB APP + LINE BOT Â· LIVE IN USE")
+    y -= 25
+    y = draw_wrapped(
+        c,
+        "A kitchen stock system for a real restaurant, with LINE alerts when supplies run low.",
+        right_x,
+        y,
+        right_w,
+        10,
+        14,
+        MUTED,
+    )
 
     sections = [
-        ("Problem", "Stock checks were repeated by hand, data lived in scattered places, and low-stock alerts often arrived too late for fast restaurant decisions."),
-        ("Solution", "A Flask + PostgreSQL web app connected to LINE Messaging API, so the team can track stock signals and receive alerts in the channel they already use."),
-        ("Impact", "Less manual checking, more confidence during closing routines, and a practical base for a restaurant-focused micro-SaaS."),
+        (
+            "Problem",
+            "Kitchen teams were re-checking stock by hand every shift. Data lived in several places, and alerts often arrived too late to act on.",
+        ),
+        (
+            "Solution",
+            "A Flask + PostgreSQL service handles the stock truth, while LINE Messaging API delivers alerts into the chat the team already uses.",
+        ),
+        (
+            "Impact",
+            "Cuts manual checking, makes closing routines calmer, and gives a real base to grow into a small B2B SaaS for restaurants.",
+        ),
     ]
-    y = 438
-    for label, body in sections:
-        content.append(text_line(x0, y, label.upper(), 8, "F2", yellow))
-        y -= 16
-        for line in wrap(body, 64):
-            content.append(text_line(x0, y, line, 9, "F1", muted))
-            y -= 13
-        y -= 12
 
-    content.append(text_line(x0, 206, "Tech Stack", 10, "F2", yellow))
+    card_gap = 8
+    card_w = (right_w - card_gap * 2) / 3
+    card_y = y - 116
+    for i, (title, body) in enumerate(sections):
+        x = right_x + i * (card_w + card_gap)
+        c.setFillColor(WHITE)
+        c.roundRect(x, card_y, card_w, 104, 10, stroke=0, fill=1)
+        c.setFillColor(YELLOW)
+        c.setFont("Helvetica-Bold", 7.2)
+        c.drawString(x + 10, card_y + 82, title.upper())
+        draw_wrapped(c, body, x + 10, card_y + 67, card_w - 20, 7.2, 10, MUTED)
+    y = card_y - 28
+
+    heading(c, "Tech Stack", right_x, y)
+    y -= 28
     stack = [
-        "Backend: Python + Flask",
-        "Database: PostgreSQL on Render",
-        "Frontend: Vanilla JS",
-        "Messaging: LINE Messaging API",
-        "Hosting: Render free tier",
-        "Uptime: UptimeRobot ping every 5 minutes",
+        "Python + Flask",
+        "PostgreSQL on Render",
+        "Vanilla JavaScript",
+        "LINE Messaging API",
+        "Render free tier",
+        "UptimeRobot /ping every 5 min",
     ]
-    y = 180
+    x = right_x
+    row_y = y
     for i, item in enumerate(stack):
-        col_x = x0 if i < 3 else x0 + 176
-        row_y = y - (i % 3) * 24
-        content.append(rect(col_x, row_y - 5, 154, 22, white))
-        content.append(text_line(col_x + 8, row_y + 2, item, 7, "F2", navy))
+        x = right_x + (i % 2) * 156
+        row_y = y - (i // 2) * 24
+        c.setFillColor(WHITE)
+        c.roundRect(x, row_y - 3, 144, 17, 8, stroke=0, fill=1)
+        c.setFillColor(INK)
+        c.setFont("Helvetica-Bold", 7.4)
+        c.drawString(x + 8, row_y + 2, item)
+    y = row_y - 35
 
-    content.append(text_line(x0, 72, "Focus: Automation | AI Agents | Restaurant Tech | Micro-SaaS | B2B Sales Discovery", 8, "F2", muted))
+    heading(c, "Skills", right_x, y)
+    y -= 28
+    x = right_x
+    for item in ["Python", "Flask", "PostgreSQL", "JavaScript", "HTML", "CSS", "GitHub Actions", "Prompt Engineering"]:
+        next_x = pill(c, item, x, y)
+        if next_x > right_x + right_w - 70:
+            y -= 22
+            x = right_x
+            next_x = pill(c, item, x, y)
+        x = next_x
 
-    stream = "".join(content).encode("latin-1")
-    objects = [
-        b"<< /Type /Catalog /Pages 2 0 R >>",
-        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-        f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {width} {height}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>".encode("latin-1"),
-        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
-        f"<< /Length {len(stream)} >>\nstream\n".encode("latin-1") + stream + b"\nendstream",
-    ]
+    c.setFillColor(FAINT)
+    c.setFont("Helvetica", 7.5)
+    c.drawString(right_x, 36, "Generated from the current WebPortfolio content. QR opens the live GitHub Pages portfolio.")
 
-    pdf = [b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"]
-    offsets = [0]
-    for i, obj in enumerate(objects, start=1):
-        offsets.append(sum(len(part) for part in pdf))
-        pdf.append(f"{i} 0 obj\n".encode("latin-1") + obj + b"\nendobj\n")
-    xref = sum(len(part) for part in pdf)
-    pdf.append(f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode("latin-1"))
-    for off in offsets[1:]:
-        pdf.append(f"{off:010d} 00000 n \n".encode("latin-1"))
-    pdf.append(
-        f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode("latin-1")
-    )
-    return b"".join(pdf)
+    c.setTitle(f"{OWNER} Portfolio")
+    c.setAuthor(OWNER)
+    c.save()
 
 
 def main() -> None:
     OUT_DIR.mkdir(exist_ok=True)
-    grid = make_qr(WEBSITE_URL)
-    write_qr_svg(grid)
-    PDF_PATH.write_bytes(build_pdf(grid))
-    print("dist/rhachata-meesilp-portfolio.pdf")
+    qr_grid = make_qr(WEBSITE_URL)
+    qr_image = write_qr_assets(qr_grid)
+    build_pdf(qr_image)
+    print("dist/rhachata-meesilp-resume.pdf")
     print("dist/portfolio-qr.svg")
+    print("dist/portfolio-qr.png")
 
 
 if __name__ == "__main__":
     main()
+
