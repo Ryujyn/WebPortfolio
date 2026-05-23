@@ -245,10 +245,6 @@ function Hero({ t }) {
           {/* Left: copy */}
           <motion.div initial={{ opacity: 0.92, y: 18 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-            <p className="mb-5 inline-flex max-w-full items-center gap-2 overflow-hidden rounded-md border border-primary/25 bg-surface/70 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary backdrop-blur-xl">
-              <span className="h-px w-7 shrink-0 bg-honey shadow-[0_0_12px_rgba(250,204,21,0.8)]" />
-              <span className="truncate">{t('hero_label')}</span>
-            </p>
             <h1 className="break-words text-4xl font-black leading-[1.06] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
               <span className="block">{t('hero_title_1')}</span>
               <span className="block text-primary">{t('hero_title_2')}</span>
@@ -270,17 +266,13 @@ function Hero({ t }) {
             </div>
           </motion.div>
 
-          {/* Right: identity card */}
+          {/* Right: identity card (ลบ label/meta row บนสุดออก) */}
           <motion.div initial={{ opacity: 0.94, scale: 0.99, y: 14 }} animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             data-cursor="accent"
             className="relative overflow-hidden rounded-2xl border border-primary/25 bg-surface/70 p-6 shadow-premium backdrop-blur-2xl sm:p-7">
             <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-honey to-electric" />
-            <div className="flex items-start justify-between">
-              <span className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t('profile_label')}</span>
-              <span className="text-xs text-muted">{t('profile_meta_year')}</span>
-            </div>
-            <div className="mt-4">
+            <div>
               <h2 className="text-2xl font-black text-foreground">{SITE.owner}</h2>
               <p className="mt-1 text-sm font-medium text-muted">{t('profile_role')}</p>
             </div>
@@ -309,26 +301,6 @@ function Hero({ t }) {
             </div>
           </motion.div>
         </div>
-
-        {/* Signals bar */}
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 grid gap-4 sm:grid-cols-3">
-          {[
-            { top: t('signal_1_top'), bottom: t('signal_1_bottom') },
-            { top: t('signal_2_top'), bottom: t('signal_2_bottom') },
-            { top: t('signal_3_top'), bottom: t('signal_3_bottom') },
-          ].map((s, i) => (
-            <div key={i}
-              className="rounded-lg border border-border bg-surface/60 px-5 py-4 backdrop-blur-xl">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="h-px w-6 bg-honey shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
-                <strong className="text-sm font-black text-foreground">{s.top}</strong>
-              </div>
-              <p className="text-xs leading-5 text-muted">{s.bottom}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );
@@ -474,19 +446,6 @@ function ProjectCard({ project: p, t }) {
             ))}
           </div>
 
-          {/* Stack */}
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-primary">{t('project_stack')}</p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {p.stack.map(([k, v]) => (
-                <div key={k} className="rounded-md border border-border bg-background/50 px-3 py-2">
-                  <span className="block text-[10px] font-black uppercase tracking-widest text-primary">{k}</span>
-                  <span className="block text-xs text-muted">{v}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Tags */}
           <div className="mt-5 flex flex-wrap gap-2">
             {p.tags.map(tag => (
@@ -510,7 +469,7 @@ function ProjectCard({ project: p, t }) {
           {/* Main image */}
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background/60">
             <img src={p.images[activeImg].src} alt={p.images[activeImg].alt}
-              className="h-full w-full object-cover transition duration-300"
+              className="h-full w-full object-contain transition duration-300"
               loading="lazy" />
           </div>
           {/* Thumbnails */}
@@ -658,7 +617,6 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <InteractiveBackground />
-      <CursorGlow />
       <Header theme={theme} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />
       <main>
         <Hero t={t} />
