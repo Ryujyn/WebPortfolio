@@ -96,41 +96,27 @@ function InteractiveBackground() {
   );
 }
 
-function CursorGlow() {
-  const pointerEnabled = usePointerEnabled();
-  const reduceMotion = useReducedMotion();
-  const [accent, setAccent] = useState(false);
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 500, damping: 38, mass: 0.18 });
-  const sy = useSpring(y, { stiffness: 500, damping: 38, mass: 0.18 });
-
-  useEffect(() => {
-    if (!pointerEnabled || reduceMotion) return;
-    const h = (e) => {
-      x.set(e.clientX); y.set(e.clientY);
-      setAccent(Boolean(e.target.closest?.('a,button,[data-cursor="accent"]')));
-    };
-    window.addEventListener('pointermove', h);
-    return () => window.removeEventListener('pointermove', h);
-  }, [pointerEnabled, reduceMotion, x, y]);
-
-  if (!pointerEnabled || reduceMotion) return null;
-  return (
-    <motion.div
-      className={`cursor-glow${accent ? ' cursor-glow-accent' : ''}`}
-      style={{ x: sx, y: sy }}
-      aria-hidden="true"
-    />
-  );
-}
-
 // ── Header ────────────────────────────────────────────────────────────
-const NAV_KEYS = ['nav_about','nav_focus','nav_projects','nav_skills','nav_contact'];
-const NAV_HREFS = ['#about','#focus','#projects','#skills','#contact'];
+const NAV_KEYS = ['nav_projects','nav_about','nav_focus','nav_skills','nav_contact'];
+const NAV_HREFS = ['#projects','#about','#focus','#skills','#contact'];
+const NAV_IDS = NAV_HREFS.map((h) => h.slice(1));
+
+function useActiveSection(ids) {
+  const [active, setActive] = useState('');
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [ids]);
+  return active;
+}
 
 function Header({ theme, toggleTheme, t, toggleLang }) {
   const isDark = theme === 'dark';
+  const active = useActiveSection(NAV_IDS);
   const logoSrc = isDark
     ? '/assets/images/sparx-logo-web-white.png'
     : '/assets/images/sparx-logo-web-black.png';
@@ -139,19 +125,22 @@ function Header({ theme, toggleTheme, t, toggleLang }) {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/72 backdrop-blur-2xl">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main row */}
-        <div className="flex min-h-[56px] items-center justify-between gap-3 py-1.5 md:min-h-[66px]">
+        <div className="flex min-h-[60px] items-center justify-between gap-3 py-1.5 md:min-h-[78px]">
           <a href="#hero" className="group flex min-w-0 shrink-0 items-center" aria-label="SPARX home">
-            <img src={logoSrc} alt="SPARX" className="h-7 w-auto" />
+            <img src={logoSrc} alt="SPARX" className="h-11 w-auto md:h-16" />
           </a>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-0.5 md:flex" aria-label="Primary">
-            {NAV_KEYS.map((k, i) => (
-              <a key={k} href={NAV_HREFS[i]}
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted transition hover:bg-primary/10 hover:text-foreground">
-                {t(k)}
-              </a>
-            ))}
+            {NAV_KEYS.map((k, i) => {
+              const isActive = active === NAV_IDS[i];
+              return (
+                <a key={k} href={NAV_HREFS[i]} aria-current={isActive ? 'page' : undefined}
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition hover:bg-primary/10 hover:text-foreground ${isActive ? 'bg-primary/10 text-foreground' : 'text-muted'}`}>
+                  {t(k)}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Desktop controls */}
@@ -179,12 +168,15 @@ function Header({ theme, toggleTheme, t, toggleLang }) {
 
         {/* Mobile nav row */}
         <nav className="flex flex-wrap items-center justify-center gap-0.5 border-t border-border/50 pb-1.5 pt-1 md:hidden" aria-label="Mobile">
-          {NAV_KEYS.map((k, i) => (
-            <a key={k} href={NAV_HREFS[i]}
-              className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-muted transition hover:bg-primary/10 hover:text-foreground">
-              {t(k)}
-            </a>
-          ))}
+          {NAV_KEYS.map((k, i) => {
+            const isActive = active === NAV_IDS[i];
+            return (
+              <a key={k} href={NAV_HREFS[i]} aria-current={isActive ? 'page' : undefined}
+                className={`inline-flex min-h-[44px] items-center rounded-md px-3 py-2 text-xs font-semibold transition hover:bg-primary/10 hover:text-foreground ${isActive ? 'bg-primary/10 text-foreground' : 'text-muted'}`}>
+                {t(k)}
+              </a>
+            );
+          })}
         </nav>
       </div>
     </header>
@@ -211,7 +203,7 @@ function RevealSection({ id, children, className = '' }) {
     <motion.section id={id} variants={sectionVariants}
       initial="hidden" whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
-      className={`relative z-10 scroll-mt-28 px-4 py-20 sm:px-6 md:scroll-mt-24 lg:px-8 ${className}`}>
+      className={`relative z-10 scroll-mt-32 px-4 py-20 sm:px-6 md:scroll-mt-24 lg:px-8 ${className}`}>
       <div className="mx-auto max-w-7xl">{children}</div>
     </motion.section>
   );
@@ -224,7 +216,7 @@ function SectionHeader({ num, eyebrow, title, intro, split = false }) {
         <span className="mb-3 block text-xs font-black tracking-[0.2em] text-primary">
           {num} — {eyebrow}
         </span>
-        <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">{title}</h2>
+        <h2 className="text-3xl font-black tracking-normal text-foreground sm:text-4xl">{title}</h2>
       </div>
       {intro && (
         <p className={`text-sm leading-7 text-muted ${split ? 'sm:max-w-sm' : 'mt-4 max-w-2xl'}`}>
@@ -238,19 +230,18 @@ function SectionHeader({ num, eyebrow, title, intro, split = false }) {
 // ── Hero ──────────────────────────────────────────────────────────────
 function Hero({ t }) {
   return (
-    <section id="hero" className="relative z-10 min-h-screen scroll-mt-28 overflow-hidden px-4 pb-20 pt-36 sm:px-6 md:scroll-mt-24 lg:px-8">
+    <section id="hero" className="hero-stage relative z-10 scroll-mt-32 overflow-hidden px-4 pb-14 pt-32 sm:px-6 md:scroll-mt-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        {/* Main grid */}
-        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          {/* Left: copy */}
+        <div className="flex min-h-[calc(100svh-5rem)] items-center">
           <motion.div initial={{ opacity: 0.92, y: 18 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-            <h1 className="break-words text-4xl font-black leading-[1.06] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative max-w-5xl">
+            <h1 className="break-words text-4xl font-black leading-[1.06] tracking-normal text-foreground sm:text-6xl lg:text-8xl">
               <span className="block">{t('hero_title_1')}</span>
               <span className="block text-primary">{t('hero_title_2')}</span>
               <span className="block">{t('hero_title_3')}</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-8 text-muted sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
               {t('hero_desc')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -263,41 +254,6 @@ function Hero({ t }) {
                 className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-primary/35 bg-surface/70 px-5 py-2.5 text-sm font-bold text-foreground backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-honey/60 hover:bg-primary/10">
                 {t('hero_cta_contact')}
               </a>
-            </div>
-          </motion.div>
-
-          {/* Right: identity card (ลบ label/meta row บนสุดออก) */}
-          <motion.div initial={{ opacity: 0.94, scale: 0.99, y: 14 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            data-cursor="accent"
-            className="relative overflow-hidden rounded-2xl border border-primary/25 bg-surface/70 p-6 shadow-premium backdrop-blur-2xl sm:p-7">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-honey to-electric" />
-            <div>
-              <h2 className="text-2xl font-black text-foreground">{SITE.owner}</h2>
-              <p className="mt-1 text-sm font-medium text-muted">{t('profile_role')}</p>
-            </div>
-            <div className="mt-5 grid gap-2 text-sm">
-              <div className="flex items-center justify-between rounded-md border border-border bg-background/50 px-3 py-2">
-                <span className="text-muted">{t('profile_location_label')}</span>
-                <span className="font-semibold text-foreground">{SITE.location}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border bg-background/50 px-3 py-2">
-                <span className="text-muted">Status</span>
-                <span className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" style={{ animation: 'statusPulse 2.4s ease-in-out infinite' }} />
-                  {t('profile_status')}
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('profile_focus_label')}</span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {['profile_focus_1','profile_focus_2','profile_focus_3','profile_focus_4'].map(k => (
-                  <span key={k} className="rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
-                    {t(k)}
-                  </span>
-                ))}
-              </div>
             </div>
           </motion.div>
         </div>
@@ -327,7 +283,7 @@ function About({ t }) {
 
           {/* Kitchen photos */}
           <motion.div variants={cardAnim}
-            className="grid grid-cols-3 gap-2 overflow-hidden rounded-xl">
+            className="grid grid-cols-3 gap-2 overflow-hidden rounded-lg">
             {[1,2,3].map(n => (
               <img key={n} src={`/assets/kitchen/dish-${n}.jpg`} alt=""
                 className="aspect-square w-full rounded-lg object-cover opacity-80 transition hover:opacity-100"
@@ -373,7 +329,7 @@ function Focus({ t }) {
         {cards.map(c => (
           <motion.article key={c.num} variants={cardAnim} data-cursor="accent"
             whileHover={{ y: -6 }}
-            className="hover-glow relative overflow-hidden rounded-xl border border-border bg-surface/78 p-6 shadow-sm backdrop-blur-xl transition hover:border-primary/55 hover:shadow-glow">
+            className="hover-glow relative overflow-hidden rounded-lg border border-border bg-surface/78 p-6 shadow-sm backdrop-blur-xl transition hover:border-primary/55 hover:shadow-glow">
             <span className="text-sm font-black text-honey">{c.num}</span>
             <h3 className="mt-4 text-xl font-black text-foreground">{c.title}</h3>
             <p className="mt-3 text-sm leading-7 text-muted">{c.desc}</p>
@@ -389,7 +345,7 @@ function Focus({ t }) {
 function Projects({ lang, t }) {
   const projects = PROJECTS[lang];
   return (
-    <RevealSection id="projects">
+    <RevealSection id="projects" className="pt-16">
       <SectionHeader num={t('projects_num')} eyebrow={t('projects_eyebrow')}
         title={t('projects_title')} intro={t('projects_intro')} split />
       <motion.div variants={stagger} initial="hidden" whileInView="visible"
@@ -416,12 +372,12 @@ function ProjectCard({ project: p, t }) {
 
   return (
     <motion.article variants={cardAnim} data-cursor="accent"
-      className="relative overflow-hidden rounded-2xl border border-border bg-surface/78 shadow-sm backdrop-blur-xl transition hover:border-primary/55 hover:shadow-glow">
+      className="project-shell console-panel relative overflow-hidden rounded-lg border border-border bg-surface/78 shadow-premium backdrop-blur-xl transition hover:border-primary/55">
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-honey to-electric" />
 
-      <div className="grid gap-0 lg:grid-cols-[1fr_1fr]">
+      <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
         {/* Left: project info */}
-        <div className="p-6 sm:p-8">
+        <div className="flex flex-col p-6 sm:p-8 lg:p-10">
           <div className="mb-5 flex flex-wrap items-center gap-3">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-muted">{p.eyebrow}</span>
             <span className={`rounded-md border px-2.5 py-1 text-xs font-bold ${statusColor}`}>
@@ -429,17 +385,17 @@ function ProjectCard({ project: p, t }) {
             </span>
             <span className="ml-auto text-xs text-muted">{p.year}</span>
           </div>
-          <h3 className="text-2xl font-black text-foreground">{p.name}</h3>
+          <h3 className="text-3xl font-black text-foreground">{p.name}</h3>
           <p className="mt-3 text-sm leading-7 text-muted">{p.summary}</p>
 
           {/* Problem / Solution / Impact */}
-          <div className="mt-6 grid gap-4">
+          <div className="mt-7 grid gap-4">
             {[
               { label: t('project_problem'),  text: p.problem },
               { label: t('project_solution'), text: p.solution },
               { label: t('project_impact'),   text: p.impact },
             ].map(pt => (
-              <div key={pt.label} className="border-l-2 border-primary/40 pl-4">
+              <div key={pt.label} className="rounded-md border-l-2 border-primary/40 bg-background/35 py-2 pl-4 pr-3">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{pt.label}</p>
                 <p className="mt-1 text-sm leading-6 text-muted">{pt.text}</p>
               </div>
@@ -447,7 +403,7 @@ function ProjectCard({ project: p, t }) {
           </div>
 
           {/* Tags */}
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             {p.tags.map(tag => (
               <span key={tag}
                 className="rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
@@ -458,25 +414,25 @@ function ProjectCard({ project: p, t }) {
 
           <a
             href="#contact"
-            className="mt-4 inline-flex rounded-md border border-border bg-background/50 px-3 py-2 text-xs font-bold text-muted transition hover:border-honey/50 hover:text-foreground"
+            className="mt-5 inline-flex w-fit rounded-md border border-border bg-background/50 px-3 py-2 text-xs font-bold text-muted transition hover:border-honey/50 hover:text-foreground"
           >
             {t('project_no_links')}
           </a>
         </div>
 
         {/* Right: image gallery */}
-        <div className="flex flex-col gap-3 border-t border-border p-5 lg:border-l lg:border-t-0 lg:p-6">
+        <div className="flex flex-col gap-4 border-t border-border bg-background/24 p-4 lg:border-l lg:border-t-0 lg:p-6">
           {/* Main image */}
-          <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background/60">
+          <div className="project-screen relative flex h-[22rem] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/70 p-4 sm:h-[27rem] lg:h-[33rem]">
             <img src={p.images[activeImg].src} alt={p.images[activeImg].alt}
-              className="h-full w-full object-contain transition duration-300"
+              className="h-full max-h-full w-auto max-w-full object-contain transition duration-300"
               loading="lazy" />
           </div>
           {/* Thumbnails */}
           <div className="flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 sm:overflow-x-visible">
             {p.images.map((img, i) => (
               <button key={i} type="button" onClick={() => setActiveImg(i)}
-                className={`shrink-0 overflow-hidden rounded-lg border-2 transition sm:shrink ${i === activeImg ? 'border-honey shadow-[0_0_14px_rgba(250,204,21,0.4)]' : 'border-border hover:border-primary/50'}`}>
+                className={`shrink-0 overflow-hidden rounded-md border-2 bg-background/60 transition sm:shrink ${i === activeImg ? 'border-honey shadow-[0_0_14px_rgba(250,204,21,0.4)]' : 'border-border hover:border-primary/50'}`}>
                 <img src={img.src} alt={img.alt}
                   className="h-14 w-14 object-cover sm:h-auto sm:w-full sm:aspect-square"
                   loading="lazy" />
@@ -500,7 +456,7 @@ function Skills({ t }) {
         className="grid gap-5 md:grid-cols-3">
         {SKILLS.map((group, i) => (
           <motion.div key={group.category_key} variants={cardAnim} data-cursor="accent"
-            className="rounded-xl border border-border bg-surface/72 p-6 shadow-sm backdrop-blur-xl transition hover:border-primary/55 hover:shadow-glow">
+            className="rounded-lg border border-border bg-surface/72 p-6 shadow-sm backdrop-blur-xl transition hover:border-primary/55 hover:shadow-glow">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-black text-foreground">{t(group.category_key)}</h3>
               <span className="text-sm font-black text-honey">0{i + 1}</span>
@@ -535,7 +491,7 @@ function Contact({ t }) {
       <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-2xl border border-primary/30 bg-surface/86 p-6 shadow-premium backdrop-blur-2xl sm:p-8 lg:p-10">
+        className="relative overflow-hidden rounded-lg border border-primary/30 bg-surface/86 p-6 shadow-premium backdrop-blur-2xl sm:p-8 lg:p-10">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-honey to-electric" />
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           {/* Left copy */}
@@ -543,7 +499,7 @@ function Contact({ t }) {
             <span className="text-xs font-black uppercase tracking-[0.22em] text-primary">
               {t('contact_num')} — {t('contact_eyebrow')}
             </span>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+            <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-4xl">
               {t('contact_title')}
             </h2>
             <p className="mt-4 text-sm leading-7 text-muted">{t('contact_lead')}</p>
@@ -555,7 +511,7 @@ function Contact({ t }) {
           </div>
 
           {/* Right links */}
-          <div className="rounded-xl border border-border bg-background/60 p-5">
+          <div className="rounded-lg border border-border bg-background/60 p-5">
             <div className="grid gap-2">
               {links.map(({ key, value, href }) => {
                 const inner = (
@@ -620,9 +576,9 @@ export default function App() {
       <Header theme={theme} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />
       <main>
         <Hero t={t} />
+        <Projects lang={lang} t={t} />
         <About t={t} />
         <Focus t={t} />
-        <Projects lang={lang} t={t} />
         <Skills t={t} />
         <Contact t={t} />
       </main>
