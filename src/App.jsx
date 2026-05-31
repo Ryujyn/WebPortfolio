@@ -125,9 +125,9 @@ function Header({ theme, toggleTheme, t, toggleLang }) {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/72 backdrop-blur-2xl">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main row */}
-        <div className="flex min-h-[60px] items-center justify-between gap-3 py-1.5 md:min-h-[78px]">
+        <div className="flex min-h-[52px] items-center justify-between gap-2 py-1 md:min-h-[78px] md:gap-3 md:py-1.5">
           <a href="#hero" className="group flex min-w-0 shrink-0 items-center" aria-label="SPARX home">
-            <img src={logoSrc} alt="SPARX" className="h-11 w-auto md:h-16" />
+            <img src={logoSrc} alt="SPARX" className="h-9 w-auto md:h-16" />
           </a>
 
           {/* Desktop nav */}
@@ -157,9 +157,9 @@ function Header({ theme, toggleTheme, t, toggleLang }) {
           </div>
 
           {/* Mobile: lang + theme only */}
-          <div className="flex shrink-0 items-center gap-1.5 md:hidden">
+          <div className="flex shrink-0 items-center gap-1 md:hidden">
             <button onClick={toggleLang} type="button"
-              className="rounded-md border border-border bg-surface/80 px-2.5 py-1.5 text-xs font-black tracking-widest text-muted">
+              className="rounded-md border border-border bg-surface/80 px-2 py-1 text-[11px] font-black tracking-widest text-muted">
               {t('lang_toggle')}
             </button>
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} compact />
@@ -167,12 +167,12 @@ function Header({ theme, toggleTheme, t, toggleLang }) {
         </div>
 
         {/* Mobile nav row */}
-        <nav className="flex flex-wrap items-center justify-center gap-0.5 border-t border-border/50 pb-1.5 pt-1 md:hidden" aria-label="Mobile">
+        <nav className="flex flex-wrap items-center justify-center gap-0 border-t border-border/50 pb-1 pt-0.5 md:hidden" aria-label="Mobile">
           {NAV_KEYS.map((k, i) => {
             const isActive = active === NAV_IDS[i];
             return (
               <a key={k} href={NAV_HREFS[i]} aria-current={isActive ? 'page' : undefined}
-                className={`inline-flex min-h-[44px] items-center rounded-md px-3 py-2 text-xs font-semibold transition hover:bg-primary/10 hover:text-foreground ${isActive ? 'bg-primary/10 text-foreground' : 'text-muted'}`}>
+                className={`inline-flex min-h-[38px] items-center rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition hover:bg-primary/10 hover:text-foreground ${isActive ? 'bg-primary/10 text-foreground' : 'text-muted'}`}>
                 {t(k)}
               </a>
             );
@@ -187,10 +187,10 @@ function ThemeToggle({ theme, toggleTheme, compact = false }) {
   const isDark = theme === 'dark';
   return (
     <button type="button" onClick={toggleTheme}
-      className={`group flex h-9 shrink-0 items-center rounded-md border border-border bg-surface/80 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:bg-primary/10 ${compact ? 'w-14 justify-center px-2' : 'gap-2.5 px-3'}`}
+      className={`group flex shrink-0 items-center rounded-md border border-border bg-surface/80 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:bg-primary/10 ${compact ? 'h-8 w-12 justify-center px-1.5' : 'h-9 gap-2.5 px-3'}`}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}>
-      <span className={`relative h-5 w-9 rounded-full border transition ${isDark ? 'border-primary/50 bg-background/80' : 'border-honey/60 bg-honey/20'}`}>
-        <span className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full shadow-sm transition ${isDark ? 'left-0.5 bg-electric' : 'left-[1.05rem] bg-honey'}`} />
+      <span className={`relative rounded-full border transition ${compact ? 'h-4 w-8' : 'h-5 w-9'} ${isDark ? 'border-primary/50 bg-background/80' : 'border-honey/60 bg-honey/20'}`}>
+        <span className={`absolute top-1/2 -translate-y-1/2 rounded-full shadow-sm transition ${compact ? 'h-3 w-3' : 'h-4 w-4'} ${isDark ? 'left-0.5 bg-electric' : 'left-[1.05rem] bg-honey'}`} />
       </span>
       {!compact && <span className="text-xs">{isDark ? 'Dark' : 'Light'}</span>}
     </button>
@@ -203,7 +203,7 @@ function RevealSection({ id, children, className = '' }) {
     <motion.section id={id} variants={sectionVariants}
       initial="hidden" whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
-      className={`relative z-10 scroll-mt-32 px-4 py-20 sm:px-6 md:scroll-mt-24 lg:px-8 ${className}`}>
+      className={`relative z-10 scroll-mt-28 px-4 py-14 sm:px-6 sm:py-16 md:scroll-mt-24 md:py-20 lg:px-8 ${className}`}>
       <div className="mx-auto max-w-7xl">{children}</div>
     </motion.section>
   );
@@ -211,7 +211,7 @@ function RevealSection({ id, children, className = '' }) {
 
 function SectionHeader({ num, eyebrow, title, intro, split = false }) {
   return (
-    <header className={`mb-12 ${split ? 'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between' : ''}`}>
+    <header className={`mb-12 ${split ? 'grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,34rem)] lg:items-start lg:gap-8' : ''}`}>
       <div>
         <span className="mb-3 block text-xs font-black tracking-[0.2em] text-primary">
           {num} — {eyebrow}
@@ -219,7 +219,9 @@ function SectionHeader({ num, eyebrow, title, intro, split = false }) {
         <h2 className="text-3xl font-black tracking-normal text-foreground sm:text-4xl">{title}</h2>
       </div>
       {intro && (
-        <p className={`text-sm leading-7 text-muted ${split ? 'sm:max-w-sm' : 'mt-4 max-w-2xl'}`}>
+        <p className={split
+          ? 'text-base leading-8 text-muted lg:max-w-[34rem]'
+          : 'mt-4 max-w-2xl text-sm leading-7 text-muted'}>
           {intro}
         </p>
       )}
@@ -230,28 +232,28 @@ function SectionHeader({ num, eyebrow, title, intro, split = false }) {
 // ── Hero ──────────────────────────────────────────────────────────────
 function Hero({ t }) {
   return (
-    <section id="hero" className="hero-stage relative z-10 scroll-mt-32 overflow-hidden px-4 pb-14 pt-32 sm:px-6 md:scroll-mt-24 lg:px-8">
+    <section id="hero" className="hero-stage relative z-10 scroll-mt-28 overflow-hidden px-4 pb-10 pt-28 sm:px-6 sm:pb-14 sm:pt-32 md:scroll-mt-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex min-h-[calc(100svh-5rem)] items-center">
+        <div className="flex min-h-[32rem] items-center justify-center sm:min-h-[36rem] md:min-h-[calc(100svh-14rem)]">
           <motion.div initial={{ opacity: 0.92, y: 18 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="relative max-w-5xl">
+            className="relative mx-auto flex w-full max-w-5xl flex-col items-center text-center">
             <h1 className="break-words text-4xl font-black leading-[1.06] tracking-normal text-foreground sm:text-6xl lg:text-8xl">
               <span className="block">{t('hero_title_1')}</span>
               <span className="block text-primary">{t('hero_title_2')}</span>
               <span className="block">{t('hero_title_3')}</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
+            <p className="mt-6 max-w-3xl text-base leading-8 text-muted sm:text-lg">
               {t('hero_desc')}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-8">
               <a href="#projects"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-honey px-5 py-2.5 text-sm font-black text-slate-950 shadow-[0_0_32px_rgba(250,204,21,0.26)] transition hover:-translate-y-0.5 hover:bg-honey/90">
+                className="inline-flex min-h-[42px] items-center justify-center rounded-md bg-honey px-4 py-2 text-sm font-black text-slate-950 shadow-[0_0_32px_rgba(250,204,21,0.26)] transition hover:-translate-y-0.5 hover:bg-honey/90 sm:min-h-[44px] sm:px-5 sm:py-2.5">
                 {t('hero_cta_projects')}
                 <span className="ml-2">→</span>
               </a>
               <a href="#contact"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-primary/35 bg-surface/70 px-5 py-2.5 text-sm font-bold text-foreground backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-honey/60 hover:bg-primary/10">
+                className="inline-flex min-h-[42px] items-center justify-center rounded-md border border-primary/35 bg-surface/70 px-4 py-2 text-sm font-bold text-foreground backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-honey/60 hover:bg-primary/10 sm:min-h-[44px] sm:px-5 sm:py-2.5">
                 {t('hero_cta_contact')}
               </a>
             </div>
@@ -293,14 +295,14 @@ function About({ t }) {
 
           {/* Stats */}
           <motion.div variants={cardAnim}
-            className="grid grid-cols-3 gap-3">
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { num: t('stat_1_num'), label: t('stat_1_label') },
               { num: t('stat_2_num'), label: t('stat_2_label') },
               { num: t('stat_3_num'), label: t('stat_3_label') },
-            ].map(s => (
+            ].map((s, i) => (
               <div key={s.num}
-                className="rounded-lg border border-border bg-surface/60 p-4 text-center backdrop-blur-xl">
+                className={`rounded-lg border border-border bg-surface/60 p-4 text-center backdrop-blur-xl ${i === 2 ? 'col-span-2 sm:col-span-1' : ''}`}>
                 <strong className="block text-xl font-black text-honey">{s.num}</strong>
                 <span className="mt-1 block text-xs text-muted">{s.label}</span>
               </div>
@@ -377,19 +379,19 @@ function ProjectCard({ project: p, t }) {
 
       <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
         {/* Left: project info */}
-        <div className="flex flex-col p-6 sm:p-8 lg:p-10">
-          <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="flex flex-col p-5 sm:p-8 lg:p-10">
+          <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-5 sm:gap-3">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-muted">{p.eyebrow}</span>
             <span className={`rounded-md border px-2.5 py-1 text-xs font-bold ${statusColor}`}>
               {statusLabel}
             </span>
             <span className="ml-auto text-xs text-muted">{p.year}</span>
           </div>
-          <h3 className="text-3xl font-black text-foreground">{p.name}</h3>
+          <h3 className="text-2xl font-black text-foreground sm:text-3xl">{p.name}</h3>
           <p className="mt-3 text-sm leading-7 text-muted">{p.summary}</p>
 
           {/* Problem / Solution / Impact */}
-          <div className="mt-7 grid gap-4">
+          <div className="mt-6 grid gap-3 sm:mt-7 sm:gap-4">
             {[
               { label: t('project_problem'),  text: p.problem },
               { label: t('project_solution'), text: p.solution },
@@ -421,9 +423,9 @@ function ProjectCard({ project: p, t }) {
         </div>
 
         {/* Right: image gallery */}
-        <div className="flex flex-col gap-4 border-t border-border bg-background/24 p-4 lg:border-l lg:border-t-0 lg:p-6">
+        <div className="flex flex-col gap-3 border-t border-border bg-background/24 p-3 sm:gap-4 sm:p-4 lg:border-l lg:border-t-0 lg:p-6">
           {/* Main image */}
-          <div className="project-screen relative flex h-[22rem] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/70 p-4 sm:h-[27rem] lg:h-[33rem]">
+          <div className="project-screen relative flex h-[18rem] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/70 p-3 sm:h-[27rem] sm:p-4 lg:h-[33rem]">
             <img src={p.images[activeImg].src} alt={p.images[activeImg].alt}
               className="h-full max-h-full w-auto max-w-full object-contain transition duration-300"
               loading="lazy" />
@@ -518,7 +520,7 @@ function Contact({ t }) {
                   <span className="flex items-center justify-between gap-4">
                     <span>
                       <span className="block text-xs font-black uppercase tracking-[0.18em] text-primary">{t(key)}</span>
-                      <span className="mt-0.5 block break-all text-sm font-semibold text-foreground">{value}</span>
+                      <span className="mt-0.5 block break-words text-sm font-semibold text-foreground [overflow-wrap:anywhere]">{value}</span>
                     </span>
                     {href && <span className="text-honey transition group-hover:translate-x-1">→</span>}
                   </span>
